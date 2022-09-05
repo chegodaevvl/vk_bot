@@ -41,7 +41,6 @@ def user_next_state(user_id: int, category_name: str =None) -> None:
     user_state = session.query(UserState).filter_by(user_id=user_id).first()
     if user_state:
         user_state.state += 1
-        print(category_name)
         if category_name:
             category = session.query(Category).filter_by(name=category_name).first()
             user_state.category_id = category.id
@@ -151,6 +150,7 @@ def second_step(user_id: int) -> None:
     category_keyboard = VkKeyboard(one_time=False)
     for category in categories:
         category_keyboard.add_button(category.capitalize(), color=VkKeyboardColor.PRIMARY)
+        category_keyboard.add_line()
     category_keyboard.add_button('Назад к описанию сообщества', color=VkKeyboardColor.SECONDARY)
     vk_bot.method('messages.send', {'peer_id': user_id,
                                     'message': get_message_step(1),
@@ -168,6 +168,7 @@ def third_step(user_id: int) -> None:
     goods, category = get_goods_by_category(user_id)
     for item in goods:
         goods_keyboard.add_button(item.name.capitalize(), color=VkKeyboardColor.PRIMARY)
+        goods_keyboard.add_line()
     goods_keyboard.add_button('Назад к выбору категорий', color=VkKeyboardColor.SECONDARY)
     vk_bot.method('messages.send', {'peer_id': user_id,
                                     'keyboard': goods_keyboard.get_keyboard(),
@@ -214,7 +215,6 @@ def main() -> None:
                 if msg_text in goods_list:
                     user_next_state(user_id)
                 current_step = check_user_state(user_id)
-                print(current_step)
                 if current_step == 0:
                     first_step(user_id)
                 elif current_step == 1:
