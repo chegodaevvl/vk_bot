@@ -19,7 +19,7 @@ def read_file_content(file_name: str) -> str:
     :param file_name: str - имя обрабатываемого файла
     :return: str - содержание файла
     """
-    with open(file_name, 'r') as text_file:
+    with open(file_name, 'r', encoding='utf-8') as text_file:
         file_content = text_file.read()
     return file_content
 

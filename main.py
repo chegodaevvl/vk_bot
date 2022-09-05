@@ -70,15 +70,16 @@ def get_categories() -> list:
         return list(category.name for category in categories)
 
 
-def get_category_name_by_id(cat_id: int) -> str:
+def get_category_by_id(cat_id: int) -> any:
     """
     Функция получения названия категории по идентификатору
     :param cat_id: int - идентификатор категории
-    :return: str - наименование категории
+    :return: Category object - категорию из БД или None, если данных в БД нет
     """
     category = session.query(Category).filter_by(id=cat_id).first()
-    if category:
-        return category.name
+    if not category:
+        return None
+    return category
 
 
 def get_all_goods() -> list:
@@ -101,7 +102,7 @@ def get_goods_by_category(user_id: int) -> tuple[list, str]:
     if user:
         category_id = user.category_id
         goods = session.query(Goods).filter_by(category_id=category_id).all()
-        return goods, get_category_name_by_id(category_id)
+        return goods, get_category_by_id(category_id)
 
 
 def get_goods_by_name(goods_name: str) -> Goods:
@@ -152,13 +153,13 @@ def third_step(user_id: int) -> None:
     :return:
     """
     goods_keyboard = VkKeyboard(one_time=False)
-    goods, category_name = get_goods_by_category(user_id)
+    goods, category = get_goods_by_category(user_id)
     for item in goods:
         goods_keyboard.add_button(item.name.capitalize())
     goods_keyboard.add_button('Назад к выбору категорий')
     vk_bot.method('messages.send', {'peer_id': user_id,
                                     'keyboard': goods_keyboard.get_keyboard(),
-                                    'message': f'Вот наши {category_name.lower()}:',
+                                    'message': category.description,
                                     'random_id': randint(0, 2048)})
 
 
