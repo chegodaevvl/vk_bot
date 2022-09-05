@@ -4,7 +4,7 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from random import randint
 from database import Base, engine, session
-from models import UserState, Category, Goods
+from models import UserState, Category, Goods, StateMessage
 
 
 bot_id = config('bot_uid')
@@ -115,6 +115,18 @@ def get_goods_by_name(goods_name: str) -> Goods:
     return goods
 
 
+def get_message_step(step_id: int) -> any:
+    """
+    Получение текста сообщения для отображения на определенном шаге работы чата.
+    :param step_id: int - номер шага чата
+    :return: str - сообщение для чата или None, если запись не найдена
+    """
+    message = session.query(StateMessage).filter_by(state_id=step_id).first()
+    if not message:
+        return None
+    return message.message
+
+
 def first_step(user_id: int) -> None:
     """
     Отрпавка приветственного сообщения на первом шаге работы мастера. Отображение клавиатуры для показа ассортимента
@@ -123,9 +135,9 @@ def first_step(user_id: int) -> None:
     """
     user_next_state(user_id)
     main_keyboard = VkKeyboard(one_time=False)
-    main_keyboard.add_button('Ознакомиться с ассортиментом')
+    main_keyboard.add_button('Ознакомиться с ассортиментом', color=VkKeyboardColor.PRIMARY)
     vk_bot.method('messages.send', {'peer_id': user_id,
-                                    'message': 'Привет, дорогой\nКак дела?',
+                                    'message': get_message_step(0),
                                     'keyboard': main_keyboard.get_keyboard(),
                                     'random_id': randint(0, 2048)})
 
@@ -138,11 +150,11 @@ def second_step(user_id: int) -> None:
     """
     category_keyboard = VkKeyboard(one_time=False)
     for category in categories:
-        category_keyboard.add_button(category.capitalize())
-    category_keyboard.add_button('Назад к описанию сообщества')
+        category_keyboard.add_button(category.capitalize(), color=VkKeyboardColor.PRIMARY)
+    category_keyboard.add_button('Назад к описанию сообщества', color=VkKeyboardColor.SECONDARY)
     vk_bot.method('messages.send', {'peer_id': user_id,
+                                    'message': get_message_step(1),
                                     'keyboard': category_keyboard.get_keyboard(),
-                                    'message': 'Вот что мы могем:',
                                     'random_id': randint(0, 2048)})
 
 
@@ -155,8 +167,8 @@ def third_step(user_id: int) -> None:
     goods_keyboard = VkKeyboard(one_time=False)
     goods, category = get_goods_by_category(user_id)
     for item in goods:
-        goods_keyboard.add_button(item.name.capitalize())
-    goods_keyboard.add_button('Назад к выбору категорий')
+        goods_keyboard.add_button(item.name.capitalize(), color=VkKeyboardColor.PRIMARY)
+    goods_keyboard.add_button('Назад к выбору категорий', color=VkKeyboardColor.SECONDARY)
     vk_bot.method('messages.send', {'peer_id': user_id,
                                     'keyboard': goods_keyboard.get_keyboard(),
                                     'message': category.description,
@@ -171,7 +183,7 @@ def forth_step(user_id: int, goods_name: str) -> None:
     """
     goods = get_goods_by_name(goods_name)
     back_keyboard = VkKeyboard(one_time=False)
-    back_keyboard.add_button('Назад к выбору товаров')
+    back_keyboard.add_button('Назад к выбору товаров', color=VkKeyboardColor.SECONDARY)
     with open('image.jpg', 'wb') as img_file:
         img_file.write(goods.image)
         photo = upload_method.photo_messages('image.jpg')
