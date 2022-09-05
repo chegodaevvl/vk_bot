@@ -1,6 +1,6 @@
 # Editors
 .vscode/
-.idea/
+../.idea/
 
 # Vagrant
 .vagrant/
@@ -52,7 +52,7 @@ target/
 # pyenv
 .python-version
 # Environments
-.env
+app/.env
 .venv
 env/
 venv/
