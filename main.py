@@ -15,10 +15,10 @@ msg_poll = VkLongPoll(vk_bot)
 
 def get_user(user_id: int) -> UserState:
     """
-    Функция получения состояния (номера шага) чата с пользователем.
+    Функция получения экземпляра объекта UserState со всей необходимой информацией о текущем пользователе.
     Данные о состоянии чата с пользователем хранятся в БД
     :param user_id: int - Идентификатор пользователя из чата в ВК
-    :return: sate: int - Состояние (номер шага) чата с пользователем
+    :return: экземпляр объекта UserState - Полное описание пользователя и его характеристик
     """
     user_state = session.query(UserState).filter_by(user_id=user_id).first()
     if not user_state:
@@ -33,7 +33,7 @@ def user_next_state(user_state: UserState, category_name: str = None) -> None:
     Функция перевода состояния чата с пользователем на следующий шаг. При переходе на шаг с выбором категории товара
     также происходит сохранение идентификатора выбранной категории, чтобы обеспечить корректную работу чата при его
     возобновлении
-    :param user_id: int - Идентификатор пользователя, с которым ведется чат
+    :param user_state: UserState - Экземпляр объекта UserState
     :param category_name: str - Наименование выбранной категории, которое предобразуетс я в id, чтобы в дальнейшем
                                 обеспечить корркетное возобновление работы чата.
     """
@@ -121,7 +121,7 @@ def first_step(user_state: UserState) -> None:
     """
     Отрпавка приветственного сообщения на первом шаге работы мастера. Отображение клавиатуры для показа ассортимента
     пекарни (переченя категорий товаров)
-    :param user_id: int - Идентификатор пользователя из чата
+    :param user_state: UserState - экземпляр объекта UserState, описывающий текущего пользователя
     """
     user_next_state(user_state)
     main_keyboard = VkKeyboard(one_time=False)
@@ -136,7 +136,7 @@ def second_step(user_state: UserState) -> None:
     """
     Отображение перечня категорий товаров в виде меню из кнопок с названиями категорий. Также отображается кнопка
     возврата к описанию сообщества.
-    :param user_id: int - Идентификатор пользователя, с которым инициирован чат
+    :param user_state: UserState - Объект UserState, описывающий текущего пользователя
     """
     category_keyboard = VkKeyboard(one_time=False)
     for category in categories:
@@ -152,8 +152,7 @@ def second_step(user_state: UserState) -> None:
 def third_step(user_state: UserState) -> None:
     """
     Отображение меню выбора товара из выбранной категории в виде кнопок и кнопки возврата в предыдущее меню.
-    :param user_id:
-    :return:
+    :param user_state: UserState - Объект UserState, описывающий текущего пользователя
     """
     goods_keyboard = VkKeyboard(one_time=False)
     goods, category = get_goods_by_category(user_state.category_id)
@@ -170,7 +169,7 @@ def third_step(user_state: UserState) -> None:
 def forth_step(user_state: UserState, goods_name: str) -> None:
     """
     Отображение информации о товаре: наименование товара, описание товара, изображение товара
-    :param user_id: int - Идентификатор пользоателя из чата
+    :param user_state: UserState - Объект UserState, описывающий текущего пользователя
     :param goods_name: str - Наименование товара
     """
     goods = get_goods_by_name(goods_name)
