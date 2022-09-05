@@ -35,3 +35,13 @@ class UserState(Base):
     user_id = Column(Integer, primary_key=True, index=True)
     state = Column(Integer)
     category_id = Column(Integer, nullable=True)
+
+
+class StateMessage(Base):
+    """
+    Модель для хранения сообщений бота в привязке к состоянию чата
+    """
+    __tablename__ = "StateMessage"
+    id = Column(Integer, primary_key=True, index=True)
+    state_id = Column(Integer, nullable=False)
+    message = Column(String, nullable=True)

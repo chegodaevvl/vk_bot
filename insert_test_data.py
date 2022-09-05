@@ -1,5 +1,5 @@
 from database import Base, engine, session
-from models import Category, Goods
+from models import Category, Goods, StateMessage
 
 
 def read_as_blob(file_name: str) -> bytes:
@@ -13,35 +13,47 @@ def read_as_blob(file_name: str) -> bytes:
     return blob_data
 
 
+def read_file_content(file_name: str) -> str:
+    """
+    Функция считывания содержимого текстового файла для записи в БД
+    :param file_name: str - имя обрабатываемого файла
+    :return: str - содержание файла
+    """
+    with open(file_name, 'r') as text_file:
+        file_content = text_file.read()
+    return file_content
+
+
 if __name__ == '__main__':
     Base.metadata.create_all(bind=engine)
     category_exist = session.query(Category).all()
     if not category_exist:
-        categories = [Category(name='Торты', description='Торты на любой, даже самый изысканный вкус'),
-                      Category(name='Печенье', description='Мы можем сделать любое печенье, даже имбирное'),
-                      Category(name='Макаруны', description='Макаруни любого цвета, но только естественного')]
+        categories = [Category(name='Торты', description=read_file_content('test_data/cake.txt')),
+                      Category(name='Печенье', description=read_file_content('test_data/cookie.txt')),
+                      Category(name='Макаруны', description=read_file_content('test_data/macaruny.txt'))]
         categories[0].Goods.extend([Goods(name='Мудрый еврей',
-                                      description="""Торт 'Мудрый еврей' - вкусный и богатый на ингредиенты.
-                                                  Собирается он из бисквита, орехов, мака, изюма.""",
-                                      image=read_as_blob('img/cake1.jpg')),
+                                          description=read_file_content('test_data/cake1.txt'),
+                                          image=read_as_blob('test_data/cake1.jpg')),
                                     Goods(name='Птичье молоко',
-                                          description="""Торт суфле 'Птичье молоко' отличается особой нежностью,
-                                                       даже воздушностью.""",
-                                          image=read_as_blob('img/cake2.jpeg'))])
+                                          description=read_file_content('test_data/cake2.txt'),
+                                          image=read_as_blob('test_data/cake2.jpeg'))])
         categories[1].Goods.extend([Goods(name='Печенье курабье',
-                                      description="""ТДжевизли ун курабьеси. Очень нежное печенье, 
-                                      которое можно встретить часто в турецких кондитерских.""",
-                                      image=read_as_blob('img/cookie1.jpg')),
+                                          description=read_file_content('test_data/cookie1.txt'),
+                                          image=read_as_blob('test_data/cookie1.jpg')),
                                     Goods(name='Имбирное печенье',
-                                          description="""Имбирное печенье – изысканная пряная ароматная выпечка. """,
-                                          image=read_as_blob('img/cookie2.jpg'))])
+                                          description=read_file_content('test_data/cookie2.txt'),
+                                          image=read_as_blob('test_data/cookie2.jpg'))])
         categories[2].Goods.extend([Goods(name='Красные макаруны',
-                                      description="""Макарун - самые популярные французские печеньки, склеенные 
-                                      между собой кремом.""",
-                                      image=read_as_blob('img/macaruny1.jpg')),
+                                          description=read_file_content('test_data/macaruny1.txt'),
+                                          image=read_as_blob('test_data/macaruny1.jpg')),
                                     Goods(name='Черные макаруны',
-                                          description="""Макарун - самые популярные французские печеньки, 
-                                          склеенные между собой кремом.""",
-                                          image=read_as_blob('img/macaruny2.jpg'))])
+                                          description=read_file_content('test_data/macaruny2.txt'),
+                                          image=read_as_blob('test_data/macaruny2.jpg'))])
+        state_messages = [StateMessage(state_id=0,
+                                       message=read_file_content('test_data/message1.txt')),
+                          StateMessage(state_id=1,
+                                       message=read_file_content('test_data/message2.txt'))
+                          ]
         session.add_all(categories)
+        session.add_all(state_messages)
         session.commit()

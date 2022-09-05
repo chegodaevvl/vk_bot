@@ -122,7 +122,7 @@ def first_step(user_id: int) -> None:
     """
     user_next_state(user_id)
     main_keyboard = VkKeyboard(one_time=False)
-    main_keyboard.add_button('Посмотреть нашу витрину')
+    main_keyboard.add_button('Ознакомиться с ассортиментом')
     vk_bot.method('messages.send', {'peer_id': user_id,
                                     'message': 'Привет, дорогой\nКак дела?',
                                     'keyboard': main_keyboard.get_keyboard(),
