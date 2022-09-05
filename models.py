@@ -5,6 +5,9 @@ from database import Base
 
 
 class Category(Base):
+    """
+    Модель для хранения информации о перечне категорий товаров
+    """
     __tablename__ = 'Category'
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
@@ -12,6 +15,9 @@ class Category(Base):
 
 
 class Goods(Base):
+    """
+    Модель для хранения информации о перечне товаров в связке с категориями
+    """
     __tablename__ = 'Goods'
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
@@ -22,6 +28,9 @@ class Goods(Base):
 
 
 class UserState(Base):
+    """
+    Модель для хранения информации о состоянии чата с пользователем
+    """
     __tablename__ = 'UserState'
     user_id = Column(Integer, primary_key=True, index=True)
     state = Column(Integer)

@@ -1,8 +1,13 @@
 from database import Base, engine, session
-from model import Category, Goods
+from models import Category, Goods
 
 
-def read_as_blob(file_name):
+def read_as_blob(file_name: str) -> bytes:
+    """
+    Функция преобразования файла с изображением в байтовый объект для сохранения в БД
+    :param file_name: str - имя сохраняемого файла
+    :return: bytes - набор байтов, содержимого файла
+    """
     with open(file_name, 'rb') as img_file:
         blob_data = img_file.read()
     return blob_data
@@ -16,11 +21,11 @@ if __name__ == '__main__':
                       Category(name='Печенье', description='Мы можем сделать любое печенье, даже имбирное'),
                       Category(name='Макаруны', description='Макаруни любого цвета, но только естественного')]
         categories[0].Goods.extend([Goods(name='Мудрый еврей',
-                                      description="""Торт Мудрый еврей - вкусный и богатый на ингредиенты.
+                                      description="""Торт 'Мудрый еврей' - вкусный и богатый на ингредиенты.
                                                   Собирается он из бисквита, орехов, мака, изюма.""",
                                       image=read_as_blob('img/cake1.jpg')),
                                     Goods(name='Птичье молоко',
-                                          description="""Торт суфле птичье молоко отличается особой нежностью,
+                                          description="""Торт суфле 'Птичье молоко' отличается особой нежностью,
                                                        даже воздушностью.""",
                                           image=read_as_blob('img/cake2.jpeg'))])
         categories[1].Goods.extend([Goods(name='Печенье курабье',
